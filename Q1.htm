@@ -9,7 +9,9 @@
 </head>
 <body>
     <script>
-        fetch('yearwise.csv',{headers:{'Allow-Access-Control-Origin':'*'}}).then(response=>response.text()).then(data=>console.log(data))
+        d3.csv("https://github.com/Rohan-G/Data-Visualization-A1/blob/94c8aced814d8c4272a698ebd5c210b114ec8996/unemployment.xlsx", function(data){
+            console.log(data);
+        })
     </script>
 </body>
 </html>
