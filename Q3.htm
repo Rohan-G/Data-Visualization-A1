@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Q3</title>
+</head>
+<body>
+    <u><h1 align="center"> Q3 </h1></u>
+    <div style="position: absolute; top: 15vh; left: 20vw;">
+        <svg width="700" height="700" id="myBar"></svg>
+    </div>
+    <script>
+
+        let svg = d3.select("#myBar");
+
+        // the label
+        svg.append("text")
+            .attr("x", "350")
+            .attr("y", "685")
+            .text("Year")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // the label
+            svg.append("text")
+            .attr("x", "0")
+            .attr("y", "330")
+            .attr("transform","rotate(270,0,300)")
+            .text("Unemployment Rate(%)")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            let curr = 0
+            for(let i=600; i>0; i-=59, curr+=1){
+                svg.append("line")
+                .attr("x1","80")
+                .attr("x2","90")
+                .attr("y1",i)
+                .attr("y2",i)
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", "55")
+                .attr("y", i+4)
+                .text(curr)
+            }
+
+            curr = 2006
+            svg.append("line")
+            .attr("x1",90)
+            .attr("x2",90)
+            .attr("y1","605")
+            .attr("y2","0")
+            .attr("style", "stroke: black; stroke-width: 1")
+            
+            svg.append("text")
+            .attr("x", 90-15)
+            .attr("y", "630")
+            .text("2005")
+            for(let i=138; i<700; i+=48, curr+=1){
+                svg.append("line")
+                .attr("x1",i)
+                .attr("x2",i)
+                .attr("y1","605")
+                .attr("y2","595")
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", i-15)
+                .attr("y", "630")
+                .text(curr)
+            }
+
+            let step = 48/12;
+
+        async function drawBar( fraction ){
+            var unEmp = [];
+            await d3.csv("https://raw.githubusercontent.com/Rohan-G/Data-Visualization-A1/main/unemployment.csv.csv", function(data){
+                unEmp.push(data);
+            })
+
+            for(let i=1; i<unEmp.length; i++){
+                let curr_val,prev_val;
+                curr_val = unEmp[i].rate;
+                prev_val = unEmp[i-1].rate;
+
+                svg.append("line")
+                .attr("x1",90 + (i-1)*step)
+                .attr("x2",90 + i*step)
+                .attr("y1",600 - (prev_val*59)*fraction)
+                .attr("y2",600 - (curr_val*59)*fraction)
+                .attr("class","graph")
+                .attr("style", "stroke: rgb(150,150,250); stroke-width: 1")
+            }
+        }
+
+        let fraction = 0;
+
+        // drawBar(0.2);
+
+        const myInterval = setInterval(()=>{
+            svg.selectAll(".graph").remove();
+            drawBar(fraction);
+            if(fraction>=1){
+                fraction=1;
+                clearInterval(myInterval);
+            }
+            else{
+                fraction+=0.002;
+            }
+        }, 10);
+
+    </script>
+</body>
+</html>

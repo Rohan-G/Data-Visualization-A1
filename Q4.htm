@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Q4</title>
+</head>
+<body>
+    <u><h1 align="center"> Q4 </h1></u>
+    <div style="position: absolute; top: 15vh; left: 20vw;">
+        <h3>Part 1</h3>
+        <svg width="1000" height="700" id="myBar"></svg>
+        <h3 style="padding-top:15vh;">Part 2</h3>
+        <svg width="1000" height="700" id="secBar"></svg>
+    </div>
+    <script>
+        let svg = d3.select("#myBar");
+        let svg1 = d3.select("#secBar");
+
+        async function drawBar(curr_year){
+            var Noms = new Map();
+            var stacked = new Map();
+            await d3.csv("https://raw.githubusercontent.com/Rohan-G/Data-Visualization-A1/main/oscar_demographics.csv", function(data){
+                if(Noms.has(data.race_ethnicity)){
+                    let val = Noms.get(data.race_ethnicity);
+                    val++;
+                    Noms.set(data.race_ethnicity,val)
+                }
+                else{
+                    Noms.set(data.race_ethnicity,1)
+                }
+                if(data.race_ethnicity!="White"){
+                    // console.log(data.ethnicity);
+                    if(stacked.has(data.award)){
+                        let val = stacked.get(data.award);
+                        val.set("total",val.get("total")+1);
+                        if(val.has(data.race_ethnicity)){
+                            val.set(data.race_ethnicity, val.get(data.race_ethnicity)+1);
+                            stacked.set(data.award, val);
+                        }
+                        else{
+                            val.set(data.race_ethnicity, 1);
+                            stacked.set(data.award, val);
+                        }
+                    }
+                    else{
+                        let val = new Map();
+                        val.set("total",1);
+                        val.set(data.race_ethnicity,1);
+                        stacked.set(data.award,val);
+                    }
+                }
+            })
+            // console.log(stacked);
+
+            // console.log(Noms.size);
+
+            // if(curr_year<2011 || curr_year>2013){
+            //     alert("Invalid Year");
+            //     curr_year = 2011;
+            // }
+
+            // x axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "30")
+            .attr("x2", "1000")
+            .attr("y1", "600")
+            .attr("y2", "600")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "500")
+            .attr("y", "685")
+            .text("Ethnicity")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // y axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "90")
+            .attr("x2", "90")
+            .attr("y1", "0")
+            .attr("y2", "660")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "0")
+            .attr("y", "330")
+            .attr("transform","rotate(270,0,300)")
+            .text("Number of reports")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // x axis svg1
+            // the actual line
+            svg1.append("line")
+            .attr("x1", "30")
+            .attr("x2", "1000")
+            .attr("y1", "600")
+            .attr("y2", "600")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg1.append("text")
+            .attr("x", "500")
+            .attr("y", "685")
+            .text("Award")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // y axis svg1
+            // the actual line
+            svg1.append("line")
+            .attr("x1", "90")
+            .attr("x2", "90")
+            .attr("y1", "0")
+            .attr("y2", "660")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg1.append("text")
+            .attr("x", "0")
+            .attr("y", "330")
+            .attr("transform","rotate(270,0,300)")
+            .text("Percentage")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            let curr = 0
+            for(let i=0; i<600; i+=110, curr+=100){
+                svg.append("line")
+                .attr("x1","85")
+                .attr("x2","95")
+                .attr("y1",600-i)
+                .attr("y2",600-i)
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", "55")
+                .attr("y", 605 - i)
+                .text(curr)
+            }
+
+            var x_vals = []
+            let step = (1000 - 90) / (Noms.size + 1)
+            curr_x = step;
+            for(let i=0; i<Noms.size; i++){
+                x_vals.push(curr_x)
+                curr_x+=step;
+            }
+
+            curr = 0
+            for(let i=0; i<600; i+=55, curr+=10){
+                svg1.append("line")
+                .attr("x1","85")
+                .attr("x2","95")
+                .attr("y1",600-i)
+                .attr("y2",600-i)
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg1.append("text")
+                .attr("x", "55")
+                .attr("y", 605 - i)
+                .text(curr)
+            }
+
+            var x_vals1 = []
+            let step1 = (1000 - 90) / (stacked.size + 1)
+            curr_x = step1;
+            for(let i=0; i<stacked.size; i++){
+                x_vals1.push(curr_x)
+                curr_x+=step1;
+            }
+
+            let i=0;
+            for( const eth of Noms.entries() ){
+                svg.append("text")
+                .attr("y","630")
+                .attr("x",x_vals[i] + 40)
+                .text(eth[0])
+
+                let curr_val = eth[1]
+
+                svg.append("rect")
+                .attr("x", x_vals[i]+5)
+                .attr("y", 600 - (curr_val/100)*110)
+                .attr("height",(curr_val/100)*110)
+                .attr("width",step - 20)
+                .attr("style","stroke:black")
+                .attr("fill","rgb(150,50,50)")
+                
+                i++;
+
+            }
+
+            svg1.append("rect")
+            .attr("x",150)
+            .attr("y",10)
+            .attr("height",20)
+            .attr("width",20)
+            .attr("fill","rgb(100,100,250)")
+
+            svg1.append("text")
+            .attr("x", 175)
+            .attr("y",27)
+            .text("Black")
+            .attr("style","font-size:1.5vw")
+
+            svg1.append("rect")
+            .attr("x",285)
+            .attr("y",10)
+            .attr("height",20)
+            .attr("width",20)
+            .attr("fill","rgb(250,50,50)")
+
+            svg1.append("text")
+            .attr("x", 310)
+            .attr("y",27)
+            .text("Hispanic")
+            .attr("style","font-size:1.5vw")
+
+            svg1.append("rect")
+            .attr("x",420)
+            .attr("y",10)
+            .attr("height",20)
+            .attr("width",20)
+            .attr("fill","rgb(255,250,0)")
+
+            svg1.append("text")
+            .attr("x", 445)
+            .attr("y",27)
+            .text("Multiracial")
+            .attr("style","font-size:1.5vw")
+
+            svg1.append("rect")
+            .attr("x",585)
+            .attr("y",10)
+            .attr("height",20)
+            .attr("width",20)
+            .attr("fill","rgb(0,175,0)")
+
+            svg1.append("text")
+            .attr("x", 610)
+            .attr("y",27)
+            .text("Middle Eastern")
+            .attr("style","font-size:1.5vw")
+
+            svg1.append("rect")
+            .attr("x",775)
+            .attr("y",10)
+            .attr("height",20)
+            .attr("width",20)
+            .attr("fill","rgb(250,150,0)")
+
+            svg1.append("text")
+            .attr("x", 800)
+            .attr("y",27)
+            .text("Asian")
+            .attr("style","font-size:1.5vw")
+
+            i=0;
+            for( const val of stacked.entries() ){
+                svg1.append("text")
+                .attr("y","630")
+                .attr("x",x_vals1[i] + 15)
+                .text(val[0])
+
+                let curr_val = 600;
+                let total = val[1].get("total");
+
+                if(val[1].has("Black")){
+                    let current = val[1].get("Black");
+                    // console.log(val[0],current,total);
+                    svg1.append("rect")
+                    .attr("x", x_vals1[i])
+                    .attr("y", curr_val - (current*10/total)*55)
+                    .attr("height",(current*10/total)*55)
+                    .attr("width",step1 - 40)
+                    .attr("style","stroke:black")
+                    .attr("fill","rgb(100,100,250)")
+
+                    curr_val-= (current*10/total)*55;
+                }
+
+                if(val[1].has("Hispanic")){
+                    let current = val[1].get("Hispanic");
+                    // console.log(val[0],current,total);
+                    svg1.append("rect")
+                    .attr("x", x_vals1[i])
+                    .attr("y", curr_val - (current*10/total)*55)
+                    .attr("height",(current*10/total)*55)
+                    .attr("width",step1 - 40)
+                    .attr("style","stroke:black")
+                    .attr("fill","rgb(250,50,50)")
+
+                    curr_val-= (current*10/total)*55;
+                }
+
+                if(val[1].has("Multiracial")){
+                    let current = val[1].get("Multiracial");
+                    // console.log(val[0],current,total);
+                    svg1.append("rect")
+                    .attr("x", x_vals1[i])
+                    .attr("y", curr_val - (current*10/total)*55)
+                    .attr("height",(current*10/total)*55)
+                    .attr("width",step1 - 40)
+                    .attr("style","stroke:black")
+                    .attr("fill","rgb(255,250,0)")
+
+                    curr_val-= (current*10/total)*55;
+                }
+
+                if(val[1].has("Middle Eastern")){
+                    let current = val[1].get("Middle Eastern");
+                    // console.log(val[0],current,total);
+                    svg1.append("rect")
+                    .attr("x", x_vals1[i])
+                    .attr("y", curr_val - (current*10/total)*55)
+                    .attr("height",(current*10/total)*55)
+                    .attr("width",step1 - 40)
+                    .attr("style","stroke:black")
+                    .attr("fill","rgb(0,175,0)")
+
+                    curr_val-= (current*10/total)*55;
+                }
+
+                if(val[1].has("Asian")){
+                    let current = val[1].get("Asian");
+                    // console.log(val[0],current,total);
+                    svg1.append("rect")
+                    .attr("x", x_vals1[i])
+                    .attr("y", curr_val - (current*10/total)*55)
+                    .attr("height",(current*10/total)*55)
+                    .attr("width",step1 - 40)
+                    .attr("style","stroke:black")
+                    .attr("fill","rgb(250,150,0)")
+
+                    curr_val-= (current*10/total)*55;
+                }
+                
+                i++;
+            }
+        }
+
+        drawBar();
+
+    </script>
+</body>
+</html>

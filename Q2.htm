@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Q2</title>
+</head>
+<body>
+    <u><h1 align="center"> Q2 </h1></u>
+    <div style="position: absolute; top: 15vh; left: 20vw;">
+        <svg width="700" height="700" id="myBar"></svg>
+    </div>
+    <input type="radio" id="2011" name="year" value="2011" style="position: absolute; left:80vw; top:15vh">
+    <label for="2011" style="position: absolute; left:81.5vw; top:15vh">2011</label>
+    <input type="radio" id="2012" name="year" value="2012" style="position: absolute; left:85vw; top:15vh">
+    <label for="2012" style="position: absolute; left:86.5vw; top:15vh">2012</label>
+    <input type="radio" id="2013" name="year" value="2013" style="position: absolute; left:90vw; top:15vh">
+    <label for="2013" style="position: absolute; left:91.5vw; top:15vh">2013</label>
+    <script>
+
+        let svg = d3.select("#myBar");
+
+        async function drawBar(curr_year){
+            var unEmp = [];
+            await d3.csv("https://raw.githubusercontent.com/Rohan-G/Data-Visualization-A1/main/yearwise.csv.csv", function(data){
+                unEmp.push(data);
+            })
+
+            if(curr_year<2011 || curr_year>2013){
+                alert("Invalid Year");
+                curr_year = 2011;
+            }
+
+            // x axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "30")
+            .attr("x2", "1000")
+            .attr("y1", "600")
+            .attr("y2", "600")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "350")
+            .attr("y", "685")
+            .text("X [" + curr_year + "]")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // y axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "90")
+            .attr("x2", "90")
+            .attr("y1", "0")
+            .attr("y2", "660")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "0")
+            .attr("y", "330")
+            .attr("transform","rotate(270,0,300)")
+            .text("Y [" + curr_year + "]")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            let curr = 100
+            for(let i=10; i<600; i+=59, curr-=10){
+                svg.append("line")
+                .attr("x1","85")
+                .attr("x2","95")
+                .attr("y1",i)
+                .attr("y2",i)
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", "55")
+                .attr("y", i+4)
+                .text(curr)
+            }
+
+            curr = 100
+            for(let i=10; i<600; i+=59, curr-=10){
+                svg.append("line")
+                .attr("x1",690-i)
+                .attr("x2",690-i)
+                .attr("y1","605")
+                .attr("y2","595")
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", 690-(i+4))
+                .attr("y", "630")
+                .text(curr)
+            }
+
+            for(let i=0; i<unEmp.length; i++){
+        //         svg.append("text")
+        //         .attr("y","630")
+        //         .attr("x",x_vals[i] + 40)
+        //         .text(unEmp[i].Name)
+                
+        //         // console.log(unEmp);
+                let x_val, y_val, r_val;
+                if(curr_year == 2011){
+                    x_val = unEmp[i].X2011;
+                    y_val = unEmp[i].Y2011;
+                    r_val = unEmp[i].R2011;
+                }
+                else if(curr_year == 2012){
+                    x_val = unEmp[i].X2012;
+                    y_val = unEmp[i].Y2012;
+                    r_val = unEmp[i].R2012;
+                }
+                else if(curr_year == 2013){
+                    x_val = unEmp[i].X2013;
+                    y_val = unEmp[i].Y2013;
+                    r_val = unEmp[i].R2013;
+                }
+
+                svg.append("circle")
+                .attr("cx", 680 - ((100-x_val)/10)*59)
+                .attr("cy", 600 - (y_val/10)*59)
+                .attr("r", r_val)
+                .attr("fill", "red")
+        //         .attr("x", x_vals[i]+5)
+        //         .attr("y", 600 - (curr_val/10)*59)
+        //         .attr("height",(curr_val/10)*59)
+        //         .attr("width",80)
+        //         .attr("style","stroke:black")
+        //         .attr("fill","rgb(150,150,250)")
+                .on("mouseover", (event, d)=>{
+                    d3.select(event.target).attr("fill","rgb(0,0,250)")
+                    svg.append("text")
+                    .attr("x", 680 - ((100-x_val)/10)*59 - r_val - 100)
+                    .attr("y", 600 - (y_val/10)*59 - r_val - 15)
+                    .attr("id","sT")
+                    .text("Name:" + unEmp[i].Name + ", X:" + x_val + ", Y:" + y_val + ", R:" + r_val)
+                })
+                .on("mouseout", (event, d)=>{
+                    d3.select(event.target).attr("fill","rgb(250,0,0)");
+                    svg.selectAll("#sT").remove();
+                })
+
+        //         curr_x+=90;
+            }
+        }
+
+        // drawBar(2011);
+
+        let but1 = document.getElementById('2011');
+        let but2 = document.getElementById('2012');
+        let but3 = document.getElementById('2013');
+
+        but1.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2011)});
+        but2.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2012)});
+        but3.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2013)});
+
+    </script>
+</body>
+</html>
