@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Q1</title>
+</head>
+<body>
+    <u><h1 align="center"> Q1 </h1></u>
+    <!-- <input type="radio" id="2011" name="year" value="2011" style="position: absolute; left:50vw; top:15vh">
+    <label for="2011" style="position: absolute; left:51.5vw; top:15vh">2011</label>
+    <input type="radio" id="2012" name="year" value="2012" style="position: absolute; left:55vw; top:15vh">
+    <label for="2012" style="position: absolute; left:56.5vw; top:15vh">2012</label>
+    <input type="radio" id="2013" name="year" value="2013" style="position: absolute; left:60vw; top:15vh">
+    <label for="2013" style="position: absolute; left:61.5vw; top:15vh">2013</label> -->
+    <!-- <input type="radio" id="2011" name="year" value="2011">
+    <label for="2011">2011</label>
+    <input type="radio" id="2012" name="year" value="2012">
+    <label for="2012">2012</label>
+    <input type="radio" id="2013" name="year" value="2013">
+    <label for="2013">2013</label> -->
+    <div style="position: absolute; top: 15vh; left: 20vw;">
+        <svg width="1000" height="700" id="myBar"></svg>
+    </div>
+    <input type="radio" id="2011" name="year" value="2011" style="position: absolute; left:50vw; top:15vh">
+    <label for="2011" style="position: absolute; left:51.5vw; top:15vh">2011</label>
+    <input type="radio" id="2012" name="year" value="2012" style="position: absolute; left:55vw; top:15vh">
+    <label for="2012" style="position: absolute; left:56.5vw; top:15vh">2012</label>
+    <input type="radio" id="2013" name="year" value="2013" style="position: absolute; left:60vw; top:15vh">
+    <label for="2013" style="position: absolute; left:61.5vw; top:15vh">2013</label>
+    <script>
+        // var i=0;
+        // async function readCSV(path,arr){
+        //     await d3.csv(path, function(data){
+        //         arr.push(data);
+        //     })
+        // }
+
+        // var curr_year = 2011;
+
+        let svg = d3.select("#myBar");
+
+        async function drawBar(curr_year){
+            var unEmp = [];
+            // await readCSV("https://raw.githubusercontent.com/Rohan-G/Data-Visualization-A1/main/yearwise.csv.csv", unEmp)
+            await d3.csv("https://raw.githubusercontent.com/Rohan-G/Data-Visualization-A1/main/yearwise.csv.csv", function(data){
+                unEmp.push(data);
+            })
+
+            console.log(unEmp.length);
+
+            if(curr_year<2011 || curr_year>2013){
+                alert("Invalid Year");
+                curr_year = 2011;
+            }
+
+            // x axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "30")
+            .attr("x2", "1000")
+            .attr("y1", "600")
+            .attr("y2", "600")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "500")
+            .attr("y", "685")
+            .text("Name")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            // y axis
+            // the actual line
+            svg.append("line")
+            .attr("x1", "90")
+            .attr("x2", "90")
+            .attr("y1", "0")
+            .attr("y2", "660")
+            .attr("style", "stroke: black; stroke-width: 3")
+
+            // the label
+            svg.append("text")
+            .attr("x", "0")
+            .attr("y", "330")
+            .attr("transform","rotate(270,0,300)")
+            .text("X [" + curr_year + "]")
+            .attr("style","font-weight: bold; font-size: 1.75vw;")
+
+            let curr = 100
+            for(let i=10; i<600; i+=59, curr-=10){
+                svg.append("line")
+                .attr("x1","85")
+                .attr("x2","95")
+                .attr("y1",i)
+                .attr("y2",i)
+                .attr("style", "stroke: black; stroke-width: 1")
+
+                svg.append("text")
+                .attr("x", "55")
+                .attr("y", i+4)
+                .text(curr)
+            }
+
+            let curr_x = 100
+            var x_vals = []
+            for(let i=0; i<unEmp.length; i++){
+                x_vals.push(curr_x)
+                curr_x+=90;
+            }
+            for(let i=0; i<unEmp.length; i++){
+                svg.append("text")
+                .attr("y","630")
+                .attr("x",x_vals[i] + 40)
+                .text(unEmp[i].Name)
+                
+                // console.log(unEmp);
+                let curr_val;
+                if(curr_year == 2011){
+                    curr_val = unEmp[i].X2011;
+                }
+                else if(curr_year == 2012){
+                    curr_val = unEmp[i].X2012;
+                }
+                else if(curr_year == 2013){
+                    curr_val = unEmp[i].X2013;
+                }
+
+                svg.append("rect")
+                .attr("x", x_vals[i]+5)
+                .attr("y", 600 - (curr_val/10)*59)
+                .attr("height",(curr_val/10)*59)
+                .attr("width",80)
+                .attr("style","stroke:black")
+                .attr("fill","rgb(150,150,250)")
+                .on("mouseover", (event, d)=>{
+                    d3.select(event.target).attr("fill","rgb(0,0,250)")
+                    svg.append("text")
+                    .attr("x", x_vals[i]+15)
+                    .attr("y", 590 - (curr_val/10)*59)
+                    .attr("id","barT")
+                    .text(unEmp[i].Name + " : " + curr_val)
+                })
+                .on("mouseout", (event, d)=>{
+                    d3.select(event.target).attr("fill","rgb(150,150,250)");
+                    svg.selectAll("#barT").remove();
+                })
+
+                curr_x+=90;
+            }
+        }
+
+        // drawBar(2011);
+
+        let but1 = document.getElementById('2011');
+        let but2 = document.getElementById('2012');
+        let but3 = document.getElementById('2013');
+
+        but1.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2011)});
+        but2.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2012)});
+        but3.addEventListener('click',function(){svg.selectAll("*").remove(); drawBar(2013)});
+
+    </script>
+</body>
+</html>
